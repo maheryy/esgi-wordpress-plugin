@@ -93,6 +93,7 @@ function panelCommunity_panelTwitchShortcode() {
 	return "<section>
 		<h1>Twitch</h1>
 		<div id='twitch-embed'></div>
+
 		<script src='https://embed.twitch.tv/embed/v1.js'></script>
 		<script type='text/javascript'>
 			new Twitch.Embed('twitch-embed', {
