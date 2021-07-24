@@ -1,3 +1,44 @@
+<?php
+global $wpdb;
+
+if (!empty($_POST)) {
+    # Récupération de tous les champs 'key' disponible dans la bdd
+    $allFields = $wpdb->get_results($wpdb->prepare("SELECT nameKey FROM {$wpdb->prefix}panelCommunity_table"), ARRAY_A);
+
+    foreach ($allFields as $row) {
+        # Vérification de chaque champ POST avec les champs existant en bdd
+        $newValue = isset($_POST[$row['nameKey']]) ? $_POST[$row['nameKey']] : 0;
+        $wpdb->update("{$wpdb->prefix}panelCommunity_table", ['valueKey' => $newValue], ['nameKey' => $row['nameKey']]);
+    }
+
+    $notification = "<p>Les modifications viennent d'être enregistrées.</p>";
+}
+
+# Récupération de toutes les données en bdd 
+$fetchAll = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}panelCommunity_table"), ARRAY_A);
+$results = [];
+foreach ($fetchAll as $row) {
+    $results[$row['nameKey']] = $row['valueKey'];
+}
+
+// Liste des options pour les types d'affichages
+$sortOptions = [
+    'last' => 'Afficher les dernières vidéos',
+    'moreViews' => 'Afficher les vidéos les plus vues',
+    'moreLikes' => 'Afficher les vidéos les plus appréciées',
+];
+
+// Liste des options pour la limite d'affichage
+$maxOptions = [
+    1 => 1,
+    2 => 2,
+    3 => 3,
+    4 => 4,
+    5 => 5,
+];
+
+?>
+
 <h1>Panel Community</h1>
 
 <p>Vous pouvez ici ajouter vos comptes et gérer les affichages de votre panneau de communauté.</p>
@@ -11,68 +52,22 @@
                     <label for="twitch_account">
                         Compte
                     </label>
-                    <input type="text" id="twitch_account" value="<?php
-                        global $wpdb;
-                        
-                        $resultQuery = $wpdb->get_results( 
-                            $wpdb->prepare("SELECT valueKey FROM {$wpdb->prefix}panelCommunity_table WHERE nameKey='twitch_account'")
-                        );
-
-                        if (count($resultQuery)) {
-                            echo json_decode(json_encode($resultQuery[0]), true)['valueKey'];
-                        }
-                    ?>">
+                    <input type="text" id="twitch_account" name="twitch_account" value="<?= $results['twitch_account'] ?>">
                 </div>
                 <div style="margin-bottom: 5px;">
                     <label>
-                        <input type="checkbox" <?php
-                        global $wpdb;
-                        
-                        $resultQuery = $wpdb->get_results( 
-                            $wpdb->prepare("SELECT valueKey FROM {$wpdb->prefix}panelCommunity_table WHERE nameKey='twitch_button_visible'")
-                        );
-
-                        if (count($resultQuery)) {
-                            if (json_decode(json_encode($resultQuery[0]), true)['valueKey'] === 'true') {
-                                echo 'checked';
-                            }
-                        }
-                    ?>> Afficher le bouton "Suivre"
+                        <input type="checkbox" name="twitch_button_visible" value="1" <?= $results['twitch_tchat_visible'] ? 'checked' : '' ?>> Afficher le bouton "Suivre"
                     </label>
-                </div> 
+                </div>
                 <div>
                     <label>
-                        <input type="checkbox" <?php
-                        global $wpdb;
-                        
-                        $resultQuery = $wpdb->get_results( 
-                            $wpdb->prepare("SELECT valueKey FROM {$wpdb->prefix}panelCommunity_table WHERE nameKey='twitch_tchat_visible'")
-                        );
-
-                        if (count($resultQuery)) {
-                            if (json_decode(json_encode($resultQuery[0]), true)['valueKey'] === 'true') {
-                                echo 'checked';
-                            }
-                        }
-                    ?>> Afficher le tchat
+                        <input type="checkbox" name="twitch_tchat_visible" value="1" <?= $results['twitch_tchat_visible'] ? 'checked' : '' ?>> Afficher le tchat
                     </label>
                 </div>
             </div>
 
             <label class="activateContainer">
-                <input type="checkbox" <?php
-                    global $wpdb;
-                    
-                    $resultQuery = $wpdb->get_results( 
-                        $wpdb->prepare("SELECT valueKey FROM {$wpdb->prefix}panelCommunity_table WHERE nameKey='twitch_activated'")
-                    );
-
-                    if (count($resultQuery)) {
-                        if (json_decode(json_encode($resultQuery[0]), true)['valueKey'] === 'true') {
-                            echo 'checked';
-                        }
-                    }
-                ?>> Activer le module
+                <input type="checkbox" name="twitch_activated" value="1" <?= $results['twitch_activated'] ? 'checked' : '' ?>> Activer le module
             </label>
         </section>
 
@@ -83,161 +78,52 @@
                     <label for="ytb_account">
                         Compte
                     </label><br>
-                    <input type="text" id="ytb_account" value="<?php
-                        global $wpdb;
-                        
-                        $resultQuery = $wpdb->get_results( 
-                            $wpdb->prepare("SELECT valueKey FROM {$wpdb->prefix}panelCommunity_table WHERE nameKey='youtube_account'")
-                        );
-
-                        if (count($resultQuery)) {
-                            echo json_decode(json_encode($resultQuery[0]), true)['valueKey'];
-                        }
-                    ?>">
+                    <input type="text" id="ytb_account" name="youtube_account" value="<?= $results['youtube_account'] ?>">
                 </div>
 
                 <div style="margin-bottom: 5px;">
                     <label>
-                        <input type="checkbox" <?php
-                            global $wpdb;
-                            
-                            $resultQuery = $wpdb->get_results( 
-                                $wpdb->prepare("SELECT valueKey FROM {$wpdb->prefix}panelCommunity_table WHERE nameKey='youtube_button_visible'")
-                            );
-
-                            if (count($resultQuery)) {
-                                if (json_decode(json_encode($resultQuery[0]), true)['valueKey'] === 'true') {
-                                    echo 'checked';
-                                }
-                            }
-                        ?>> Afficher le bouton "S'abonner"
-                    </label>
-                </div> 
-                <div style="margin-bottom: 5px;">
-                    <label>
-                        <input type="checkbox" <?php
-                            global $wpdb;
-                            
-                            $resultQuery = $wpdb->get_results( 
-                                $wpdb->prepare("SELECT valueKey FROM {$wpdb->prefix}panelCommunity_table WHERE nameKey='youtube_likes_visible'")
-                            );
-
-                            if (count($resultQuery)) {
-                                if (json_decode(json_encode($resultQuery[0]), true)['valueKey'] === 'true') {
-                                    echo 'checked';
-                                }
-                            }
-                        ?>> Afficher le nombre de vues
+                        <input type="checkbox" name="youtube_button_visible" value="1" <?= $results['youtube_button_visible'] ? 'checked' : '' ?>> Afficher le bouton "S'abonner"
                     </label>
                 </div>
                 <div style="margin-bottom: 5px;">
                     <label>
-                        <input type="checkbox" <?php
-                            global $wpdb;
-                            
-                            $resultQuery = $wpdb->get_results( 
-                                $wpdb->prepare("SELECT valueKey FROM {$wpdb->prefix}panelCommunity_table WHERE nameKey='youtube_likes_visible'")
-                            );
-
-                            if (count($resultQuery)) {
-                                if (json_decode(json_encode($resultQuery[0]), true)['valueKey'] === 'true') {
-                                    echo 'checked';
-                                }
-                            }
-                        ?>> Afficher le nombre de likes
+                        <input type="checkbox" name="youtube_views_visible" value="1" <?= $results['youtube_views_visible'] ? 'checked' : '' ?>> Afficher le nombre de vues
+                    </label>
+                </div>
+                <div style="margin-bottom: 5px;">
+                    <label>
+                        <input type="checkbox" name="youtube_likes_visible" value="1" <?= $results['youtube_likes_visible'] ? 'checked' : '' ?>> Afficher le nombre de likes
                     </label>
                 </div>
                 <div style="margin-bottom: 20px;">
                     <label>
-                        <input type="checkbox" <?php
-                            global $wpdb;
-                            
-                            $resultQuery = $wpdb->get_results( 
-                                $wpdb->prepare("SELECT valueKey FROM {$wpdb->prefix}panelCommunity_table WHERE nameKey='youtube_dislikes_visible'")
-                            );
-
-                            if (count($resultQuery)) {
-                                if (json_decode(json_encode($resultQuery[0]), true)['valueKey'] === 'true') {
-                                    echo 'checked';
-                                }
-                            }
-                        ?>> Afficher le nombre de dislikes
+                        <input type="checkbox" name="youtube_dislikes_visible" value="1" <?= $results['youtube_dislikes_visible'] ? 'checked' : '' ?>> Afficher le nombre de dislikes
                     </label>
                 </div>
 
                 <div style="margin-bottom: 5px;">
                     <label>
-                        <select>
-                            <?php
-                                global $wpdb;
-                                $YtbTypePosts;
-                                
-                                $resultQuery = $wpdb->get_results( 
-                                    $wpdb->prepare("SELECT valueKey FROM {$wpdb->prefix}panelCommunity_table WHERE nameKey='youtube_type_videos'")
-                                );
-
-                                if (count($resultQuery)) {
-                                    $YtbTypePosts = json_decode(json_encode($resultQuery[0]), true)['valueKey'];
-                                }
-
-                                $keysValues = [
-                                    'last' => 'Afficher les dernières vidéos',
-                                    'moreViews' => 'Afficher les vidéos les plus vues',
-                                    'moreLikes' => 'Afficher les vidéos les plus appréciées',
-                                ];
-                                foreach ($keysValues as $key => $value) {
-                                    if ($YtbTypePosts == $key) {
-                                        echo "<option value='" . $key . "' selected>" . $value . "</option>";
-                                    }else {
-                                        echo "<option value='" . $key . "'>" . $value . "</option>";
-                                    }
-                                }
-                            ?>
+                        <select name="youtube_type_videos">
+                            <?php foreach ($sortOptions as $key => $value) : ?>
+                                <option value="<?= $key ?>" <?= $key == $results['youtube_type_videos'] ? 'selected' : '' ?>><?= $value ?></option>
+                            <?php endforeach; ?>
                         </select>
                     </label>
                 </div>
                 <div>
                     <label>
-                        <select>
-                            <?php
-                                global $wpdb;
-                                $YtbNbPosts;
-                                
-                                $resultQuery = $wpdb->get_results( 
-                                    $wpdb->prepare("SELECT valueKey FROM {$wpdb->prefix}panelCommunity_table WHERE nameKey='youtube_nb_videos'")
-                                );
-
-                                if (count($resultQuery)) {
-                                    $YtbNbPosts = json_decode(json_encode($resultQuery[0]), true)['valueKey'];
-                                }
-
-                                for ($i = 1; $i <= 5; $i++) {
-                                    if ($YtbNbPosts == $i) {
-                                        echo "<option value='" . $i . "' selected>" . $i . "</option>";
-                                    }else {
-                                        echo "<option value='" . $i . "'>" . $i . "</option>";
-                                    }
-                                }
-                            ?>
+                        <select name="youtube_nb_videos">
+                            <?php foreach ($maxOptions as $key => $value) : ?>
+                                <option value="<?= $key ?>" <?= $key == $results['youtube_nb_videos'] ? 'selected' : '' ?>><?= $value ?></option>
+                            <?php endforeach; ?>
                         </select> Vidéos à afficher
                     </label>
                 </div>
             </div>
 
             <label class="activateContainer">
-                <input type="checkbox" <?php
-                    global $wpdb;
-                    
-                    $resultQuery = $wpdb->get_results( 
-                        $wpdb->prepare("SELECT valueKey FROM {$wpdb->prefix}panelCommunity_table WHERE nameKey='youtube_activated'")
-                    );
-
-                    if (count($resultQuery)) {
-                        if (json_decode(json_encode($resultQuery[0]), true)['valueKey'] === 'true') {
-                            echo 'checked';
-                        }
-                    }
-                ?>> Activer le module
+                <input type="checkbox" name="youtube_activated" value="1" <?= $results['youtube_activated'] ? 'checked' : '' ?>> Activer le module
             </label>
         </section>
 
@@ -248,138 +134,41 @@
                     <label for="insta_account">
                         Compte
                     </label><br>
-                    <input type="text" id="instagram_account" value="<?php
-                        global $wpdb;
-                        
-                        $resultQuery = $wpdb->get_results( 
-                            $wpdb->prepare("SELECT valueKey FROM {$wpdb->prefix}panelCommunity_table WHERE nameKey='instagram_account'")
-                        );
-
-                        if (count($resultQuery)) {
-                            echo json_decode(json_encode($resultQuery[0]), true)['valueKey'];
-                        }
-                    ?>">
+                    <input type="text" id="instagram_account" name="instagram_account" value="<?= $results['instagram_account'] ?>">
                 </div>
 
                 <div style="margin-bottom: 5px;">
-                    <label><input type="checkbox" <?php
-                        global $wpdb;
-                        
-                        $resultQuery = $wpdb->get_results( 
-                            $wpdb->prepare("SELECT valueKey FROM {$wpdb->prefix}panelCommunity_table WHERE nameKey='instagram_button_visible'")
-                        );
-
-                        if (count($resultQuery)) {
-                            if (json_decode(json_encode($resultQuery[0]), true)['valueKey'] === 'true') {
-                                echo 'checked';
-                            }
-                        }
-                    ?>> Afficher le bouton "Follow"</label>
-                </div> 
+                    <label><input type="checkbox" name="instagram_button_visible" value="1" <?= $results['instagram_button_visible'] ? 'checked' : '' ?>> Afficher le bouton "Follow"</label>
+                </div>
                 <div style="margin-bottom: 5px;">
-                    <label><input type="checkbox" <?php
-                        global $wpdb;
-                        
-                        $resultQuery = $wpdb->get_results( 
-                            $wpdb->prepare("SELECT valueKey FROM {$wpdb->prefix}panelCommunity_table WHERE nameKey='instagram_description_visible'")
-                        );
-
-                        if (count($resultQuery)) {
-                            if (json_decode(json_encode($resultQuery[0]), true)['valueKey'] === 'true') {
-                                echo 'checked';
-                            }
-                        }
-                    ?>> Afficher la description du post</label>
+                    <label><input type="checkbox" name="instagram_description_visible" value="1" <?= $results['instagram_description_visible'] ? 'checked' : '' ?>> Afficher la description du post</label>
                 </div>
                 <div style="margin-bottom: 20px;">
-                    <label><input type="checkbox" <?php
-                        global $wpdb;
-                        
-                        $resultQuery = $wpdb->get_results( 
-                            $wpdb->prepare("SELECT valueKey FROM {$wpdb->prefix}panelCommunity_table WHERE nameKey='instagram_likes_visible'")
-                        );
-
-                        if (count($resultQuery)) {
-                            if (json_decode(json_encode($resultQuery[0]), true)['valueKey'] === 'true') {
-                                echo 'checked';
-                            }
-                        }
-                    ?>> Afficher le nombre de likes</label>
+                    <label><input type="checkbox" name="instagram_likes_visible" value="1" <?= $results['instagram_likes_visible'] ? 'checked' : '' ?>> Afficher le nombre de likes</label>
                 </div>
 
                 <div style="margin-bottom: 5px;">
                     <label>
-                        <select>
-                            <?php
-                                global $wpdb;
-                                $instaTypePosts;
-                                
-                                $resultQuery = $wpdb->get_results( 
-                                    $wpdb->prepare("SELECT valueKey FROM {$wpdb->prefix}panelCommunity_table WHERE nameKey='instagram_type_posts'")
-                                );
-
-                                if (count($resultQuery)) {
-                                    $instaTypePosts = json_decode(json_encode($resultQuery[0]), true)['valueKey'];
-                                }
-
-                                $keysValues = [
-                                    'last' => 'Afficher les derniers posts',
-                                    'moreViews' => 'Afficher les posts les plus vus',
-                                    'moreLikes' => 'Afficher les posts les plus appréciés',
-                                ];
-                                foreach ($keysValues as $key => $value) {
-                                    if ($instaTypePosts == $key) {
-                                        echo "<option value='" . $key . "' selected>" . $value . "</option>";
-                                    }else {
-                                        echo "<option value='" . $key . "'>" . $value . "</option>";
-                                    }
-                                }
-                            ?>
+                        <select name="instagram_type_posts">
+                            <?php foreach ($sortOptions as $key => $value) : ?>
+                                <option value="<?= $key ?>" <?= $key == $results['instagram_type_posts'] ? 'selected' : '' ?>><?= $value ?></option>
+                            <?php endforeach; ?>
                         </select>
                     </label>
                 </div>
                 <div>
                     <label>
-                        <select>
-                            <?php
-                                global $wpdb;
-                                $instaNbPosts;
-                                
-                                $resultQuery = $wpdb->get_results( 
-                                    $wpdb->prepare("SELECT valueKey FROM {$wpdb->prefix}panelCommunity_table WHERE nameKey='instagram_nb_posts'")
-                                );
-
-                                if (count($resultQuery)) {
-                                    $instaNbPosts = json_decode(json_encode($resultQuery[0]), true)['valueKey'];
-                                }
-
-                                for ($i = 1; $i <= 5; $i++) {
-                                    if ($instaNbPosts == $i) {
-                                        echo "<option value='" . $i . "' selected>" . $i . "</option>";
-                                    }else {
-                                        echo "<option value='" . $i . "'>" . $i . "</option>";
-                                    }
-                                }
-                            ?>
+                        <select name="instagram_nb_posts">
+                            <?php foreach ($maxOptions as $key => $value) : ?>
+                                <option value="<?= $key ?>" <?= $key == $results['instagram_nb_posts'] ? 'selected' : '' ?>><?= $value ?></option>
+                            <?php endforeach; ?>
                         </select> Posts à afficher
                     </label>
                 </div>
             </div>
 
             <label class="activateContainer">
-                <input type="checkbox" <?php
-                    global $wpdb;
-                    
-                    $resultQuery = $wpdb->get_results( 
-                        $wpdb->prepare("SELECT valueKey FROM {$wpdb->prefix}panelCommunity_table WHERE nameKey='instagram_activated'")
-                    );
-
-                    if (count($resultQuery)) {
-                        if (json_decode(json_encode($resultQuery[0]), true)['valueKey'] === 'true') {
-                            echo 'checked';
-                        }
-                    }
-                ?>> Activer le module
+                <input type="checkbox" name="instagram_activated" value="1" <?= $results['instagram_activated'] ? 'checked' : '' ?>> Activer le module
             </label>
         </section>
     </div>
@@ -389,14 +178,6 @@
     </section>
 
     <section class="notifySection">
-        <?php
-            if (!empty($_POST)) {
-                if ($messageOk) {
-                    echo "<p>Les modifications viennent d'être enregistrées.</p>";
-                }else {
-                    echo "<p>Une erreur est survenue, veuillez réessayer.</p>";
-                }
-            }
-        ?>
+        <?= $notification ?? '' ?>
     </section>
 </form>
