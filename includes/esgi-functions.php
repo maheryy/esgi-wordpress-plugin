@@ -107,9 +107,13 @@ function panelCommunity_panelTwitchShortcode() {
 }
 
 function panelCommunity_panelYoutubeShortcode() {
-	return "<section>
-		<h1>Youtube</h1>
-	</section>";
+	return '<section>
+		<h3>Youtube</h3>
+		<iframe width="420" height="315" src="https://www.youtube.com/embed/FPXlN3x8dcM">
+		</iframe>
+		<script src="https://apis.google.com/js/platform.js"></script>
+		<div class="g-ytsubscribe" data-channel="Konbini" data-layout="default" data-count="default"></div>
+	</section>';
 }
 
 function panelCommunity_panelInstagramShortcode() {

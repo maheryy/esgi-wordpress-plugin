@@ -24,7 +24,7 @@ class Youtube
   {
     $params = [
       'key' => YT_API_KEY,
-      'part' => 'id, snippet',
+      'part' => 'id,snippet',
     ];
     if (filter_var($channel, FILTER_VALIDATE_URL)) {
       # $channel is url
@@ -76,42 +76,76 @@ class Youtube
   public function fetch()
   {
     $response = httpRequest($this->getUrl());
-    $res = !empty($response['items']) ? array_map(fn ($el) => "https://www.youtube.com/watch?v={$el['id']['videoId']}", $response['items']) : [];
+    $res = $response['items'] ? array_map(fn ($el) => $el['id']['videoId'], $response['items']) : [];
     return $res;
-  }
-
-  public function getLatestVideos(int $max = 5)
-  {
-    return $this->type(self::TYPE_VIDEO)
-      ->orderBy(self::ORDER_DATE)
-      ->limit($max)
-      ->fetch();
-  }
-
-  public function getMostLikedVideos(int $max = 5)
-  {
-    return $this->type(self::TYPE_VIDEO)
-      ->orderBy(self::ORDER_RATES)
-      ->limit($max)
-      ->fetch();
-  }
-  public function getMostViewedVideos(int $max = 5)
-  {
-    return $this->type(self::TYPE_VIDEO)
-      ->orderBy(self::ORDER_VIEWS)
-      ->limit($max)
-      ->fetch();
   }
 
   public function getCurrentLive()
   {
     return $this->type(self::TYPE_LIVE)->fetch();
   }
+
+  public function getLatestVideos(int $max, bool $with_details = true)
+  {
+    $videos = $this->type(self::TYPE_VIDEO)
+      ->orderBy(self::ORDER_DATE)
+      ->limit($max)
+      ->fetch();
+
+    return $with_details && $videos ? $this->getVideosDetails($videos) : $videos;
+  }
+
+  public function getMostLikedVideos(int $max, bool $with_details = true)
+  {
+    $videos = $this->type(self::TYPE_VIDEO)
+      ->orderBy(self::ORDER_RATES)
+      ->limit($max)
+      ->fetch();
+
+    return $with_details && $videos ? $this->getVideosDetails($videos) : $videos;
+  }
+  public function getMostViewedVideos(int $max, bool $with_details = true)
+  {
+    $videos = $this->type(self::TYPE_VIDEO)
+      ->orderBy(self::ORDER_VIEWS)
+      ->limit($max)
+      ->fetch();
+
+    return $with_details && $videos ? $this->getVideosDetails($videos) : $videos;
+  }
+
+  private function getVideosDetails(array $videos)
+  {
+    $res = httpRequest(buildUrl('https://youtube.googleapis.com/youtube/v3/videos', [
+      'key' => YT_API_KEY,
+      'part' => 'statistics',
+      'id' => implode(',', $videos)
+    ]));
+
+    return $res['items']
+      ? array_map(fn ($el) => [
+        'id' => $el['id'],
+        'views' => $el['statistics']['viewCount'],
+        'likes' => $el['statistics']['likeCount'],
+        'dislikes' => $el['statistics']['dislikeCount'],
+        'favorites' => $el['statistics']['favoriteCount'],
+        'comments' => $el['statistics']['commentCount'],
+      ], $res['items'])
+      : null;
+  }
 }
+
+
+
+
+
+
 
 /*
 
 VERIFY
+
+  'https://youtube.googleapis.com/youtube/v3/videos?part=statistics&id=Ks-_Mh1QhMc%2Cc0KYU2j0TM4%2CeIho2S0ZahI&key=[YOUR_API_KEY]'
 
 {
   "kind": "youtube#channelListResponse",
