@@ -1,18 +1,34 @@
 <?php
 global $wpdb;
 
+if (!empty($_POST)) {
+    # Récupération de tous les champs 'key' disponible dans la bdd
+    $allFields = $wpdb->get_results($wpdb->prepare("SELECT nameKey FROM {$wpdb->prefix}panelCommunity_table"), ARRAY_A);
+
+    foreach ($allFields as $row) {
+        # Vérification de chaque champ POST avec les champs existant en bdd
+        $newValue = isset($_POST[$row['nameKey']]) ? $_POST[$row['nameKey']] : 0;
+        $wpdb->update("{$wpdb->prefix}panelCommunity_table", ['valueKey' => $newValue], ['nameKey' => $row['nameKey']]);
+    }
+
+    $notification = "<p>Les modifications viennent d'être enregistrées.</p>";
+}
+
+# Récupération de toutes les données en bdd 
 $fetchAll = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}panelCommunity_table"), ARRAY_A);
 $results = [];
 foreach ($fetchAll as $row) {
     $results[$row['nameKey']] = $row['valueKey'];
 }
 
+// Liste des options pour les types d'affichages
 $sortOptions = [
     'last' => 'Afficher les dernières vidéos',
     'moreViews' => 'Afficher les vidéos les plus vues',
     'moreLikes' => 'Afficher les vidéos les plus appréciées',
 ];
 
+// Liste des options pour la limite d'affichage
 $maxOptions = [
     1 => 1,
     2 => 2,
@@ -72,7 +88,7 @@ $maxOptions = [
                 </div>
                 <div style="margin-bottom: 5px;">
                     <label>
-                        <input type="checkbox" name="youtube_likes_visible" value="1" <?= $results['youtube_likes_visible'] ? 'checked' : '' ?>> Afficher le nombre de vues
+                        <input type="checkbox" name="youtube_views_visible" value="1" <?= $results['youtube_views_visible'] ? 'checked' : '' ?>> Afficher le nombre de vues
                     </label>
                 </div>
                 <div style="margin-bottom: 5px;">
@@ -162,18 +178,6 @@ $maxOptions = [
     </section>
 
     <section class="notifySection">
-        <?php
-        if (!empty($_POST)) {
-            echo '<pre>';
-            print_r($_POST);
-            echo '</pre>';
-
-            if ($messageOk) {
-                echo "<p>Les modifications viennent d'être enregistrées.</p>";
-            } else {
-                echo "<p>Une erreur est survenue, veuillez réessayer.</p>";
-            }
-        }
-        ?>
+        <?= $notification ?? '' ?>
     </section>
 </form>
