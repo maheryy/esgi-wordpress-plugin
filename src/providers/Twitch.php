@@ -2,21 +2,32 @@
 
 class Twitch
 {
-    private string $api_secret;
+    private string $base_url = 'https://api.twitch.tv/helix/search/channels';
 
-    private string $base_url;
+    private string $channel_id;
 
-    private string $channel;
-
-    public function __construct(string $channel)
+    public function __construct(string $channel_id)
     {
-        $this->channel = $channel;
-        $this->api_secret = 'TWITCH_SECRET';
-        $this->base_url = 'twitch';
+        $this->channel_id = $channel_id;
+    }
+
+
+    public static function verifyChannel($channel_id)
+    {
+        // $url = buildUrl('https://api.twitch.tv/helix/search/channels');
+        $res = httpRequest("https://api.twitch.tv/kraken/streams", [
+            'headers' => [
+                'Accept: application/vnd.twitchtv.v5+json',
+                'Client-ID: '. TWITCH_CLIENT_ID
+            ]
+        ]);
+
+        dd($res);
     }
 
     public function isLive()
     {
+        'https://api.twitch.tv/helix/search/channels';
     }
 
     public function getCurrentLive()
