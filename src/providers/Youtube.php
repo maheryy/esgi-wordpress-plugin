@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../helpers/helpers.php';
 
 class Youtube
 {
@@ -26,9 +27,11 @@ class Youtube
       'key' => YT_API_KEY,
       'part' => 'id,snippet',
     ];
+    # $channel is url
     if (filter_var($channel, FILTER_VALIDATE_URL)) {
-      # $channel is url
-      $params['id'] = ($s = explode('/', $channel))[count($s) - 1];
+      # youtube url can be either id or channel name
+      $type = strpos($channel, 'channel/') !== false ? 'id' : 'forUsername';
+      $params[$type] = ($s = explode('/', $channel))[count($s) - 1];
     } else {
       # $channel is channel name
       $params['forUsername'] = $channel;

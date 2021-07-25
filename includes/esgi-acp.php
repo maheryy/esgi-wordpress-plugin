@@ -1,17 +1,51 @@
 <?php
+
+
 global $wpdb;
 
 if (!empty($_POST)) {
-    # Récupération de tous les champs 'key' disponible dans la bdd
-    $allFields = $wpdb->get_results($wpdb->prepare("SELECT nameKey FROM {$wpdb->prefix}panelCommunity_table"), ARRAY_A);
+    # Chargement des providers et du .env qui contient les clés api
+    require __DIR__ . '/../src/providers/Youtube.php';
+    loadDotEnv(__DIR__ . '/../.env');
 
-    foreach ($allFields as $row) {
-        # Vérification de chaque champ POST avec les champs existant en bdd
-        $newValue = isset($_POST[$row['nameKey']]) ? $_POST[$row['nameKey']] : 0;
-        $wpdb->update("{$wpdb->prefix}panelCommunity_table", ['valueKey' => $newValue], ['nameKey' => $row['nameKey']]);
+    # Récupération de tous les champs 'key' disponible dans la bdd
+    $allFields = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}panelCommunity_table WHERE nameKey LIKE '" . $_POST['action'] . "%'"), ARRAY_A);
+    $data = $_POST;
+    switch ($_POST['action']) {
+        case 'youtube':
+            # Recherche si le compte n'a pas changé
+            foreach ($allFields as $row) {
+                if ($row['nameKey'] === 'youtube_account' && $row['valueKey'] !== sanitize($data['youtube_account'])) {
+                    $changed = true;
+                    break;
+                }
+            }
+            if ($changed) {
+                if ($account = Youtube::verifyChannel(sanitize($data['youtube_account']))) {
+                    $data['youtube_account_id'] = $account['id'];
+                    $data['youtube_account'] = $account['name'];
+                } else {
+                    $error = "Le compte youtube {$data['youtube_account']} n'est pas trouvé";
+                }
+            }
+            break;
+            // case 'instagram':
+
+            //     break;
+            // case 'twitch':
+
+            //     break;
     }
 
-    $notification = "<p>Les modifications viennent d'être enregistrées.</p>";
+    if (!isset($error)) {
+        foreach ($allFields as $row) {
+            # Vérification de chaque champ POST avec les champs existant en bdd
+            $newValue = !empty($data[$row['nameKey']]) ? sanitize($data[$row['nameKey']]) : 0;
+            $wpdb->update("{$wpdb->prefix}panelCommunity_table", ['valueKey' => $newValue], ['nameKey' => $row['nameKey']]);
+        }
+
+        $success = "<p>Les modifications viennent d'être enregistrées.</p>";
+    }
 }
 
 # Récupération de toutes les données en bdd 
@@ -36,42 +70,16 @@ $maxOptions = [
     4 => 4,
     5 => 5,
 ];
-
 ?>
 
 <h1>Panel Community</h1>
 
 <p>Vous pouvez ici ajouter vos comptes et gérer les affichages de votre panneau de communauté.</p>
 
-<form method="POST" class="panelCommunityForm">
-    <div class="panelCommunityContainers">
-        <section class="panelCommunityContainer">
-            <div class="panelCommunityContentForm">
-                <h2>Twitch</h2>
-                <div style="margin-bottom: 20px;">
-                    <label for="twitch_account">
-                        Compte
-                    </label>
-                    <input type="text" id="twitch_account" name="twitch_account" value="<?= $results['twitch_account'] ?>">
-                </div>
-                <div style="margin-bottom: 5px;">
-                    <label>
-                        <input type="checkbox" name="twitch_button_visible" value="1" <?= $results['twitch_tchat_visible'] ? 'checked' : '' ?>> Afficher le bouton "Suivre"
-                    </label>
-                </div>
-                <div>
-                    <label>
-                        <input type="checkbox" name="twitch_tchat_visible" value="1" <?= $results['twitch_tchat_visible'] ? 'checked' : '' ?>> Afficher le tchat
-                    </label>
-                </div>
-            </div>
-
-            <label class="activateContainer">
-                <input type="checkbox" name="twitch_activated" value="1" <?= $results['twitch_activated'] ? 'checked' : '' ?>> Activer le module
-            </label>
-        </section>
-
-        <section class="panelCommunityContainer">
+<div class="panelCommunityContainers">
+    <section class="panelCommunityContainer">
+        <form method="POST" class="panelCommunityForm">
+            <input type="hidden" name="action" value="youtube">
             <div class="panelCommunityContentForm">
                 <h2>Youtube</h2>
                 <div style="margin-bottom: 20px;">
@@ -122,12 +130,55 @@ $maxOptions = [
                 </div>
             </div>
 
-            <label class="activateContainer">
-                <input type="checkbox" name="youtube_activated" value="1" <?= $results['youtube_activated'] ? 'checked' : '' ?>> Activer le module
-            </label>
-        </section>
+            <div class="panelCommunityAction">
+                <label>
+                    <input type="submit" class="button action" value="Enregistrer">
+                </label>
+                <label>
+                    <input type="checkbox" name="youtube_activated" value="1" <?= $results['youtube_activated'] ? 'checked' : '' ?>> Activer le module
+                </label>
+            </div>
+        </form>
+    </section>
 
-        <section class="panelCommunityContainer">
+    <!-- Remove hidden when it works -->
+    <section class="panelCommunityContainer hidden">
+        <form method="POST" class="panelCommunityForm">
+            <input type="hidden" name="action" value="twitch">
+            <div class="panelCommunityContentForm">
+                <h2>Twitch</h2>
+                <div style="margin-bottom: 20px;">
+                    <label for="twitch_account">
+                        Compte
+                    </label>
+                    <input type="text" id="twitch_account" name="twitch_account" value="<?= $results['twitch_account'] ?>">
+                </div>
+                <div style="margin-bottom: 5px;">
+                    <label>
+                        <input type="checkbox" name="twitch_button_visible" value="1" <?= $results['twitch_tchat_visible'] ? 'checked' : '' ?>> Afficher le bouton "Suivre"
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        <input type="checkbox" name="twitch_tchat_visible" value="1" <?= $results['twitch_tchat_visible'] ? 'checked' : '' ?>> Afficher le tchat
+                    </label>
+                </div>
+            </div>
+            <div class="panelCommunityAction">
+                <label>
+                    <input type="submit" class="button action" value="Enregistrer">
+                </label>
+                <label>
+                    <input type="checkbox" name="twitch_activated" value="1" <?= $results['twitch_activated'] ? 'checked' : '' ?>> Activer le module
+                </label>
+            </div>
+        </form>
+    </section>
+
+    <!-- Remove hidden when it works -->
+    <section class="panelCommunityContainer hidden">
+        <form method="POST" class="panelCommunityForm">
+            <input type="hidden" name="action" value="instagram">
             <div class="panelCommunityContentForm">
                 <h2>Instagram</h2>
                 <div style="margin-bottom: 20px;">
@@ -166,18 +217,17 @@ $maxOptions = [
                     </label>
                 </div>
             </div>
-
-            <label class="activateContainer">
-                <input type="checkbox" name="instagram_activated" value="1" <?= $results['instagram_activated'] ? 'checked' : '' ?>> Activer le module
-            </label>
-        </section>
-    </div>
-
-    <section style="margin-top: 20px;">
-        <input type="submit" class="button action" value="Enregistrer">
+            <div class="panelCommunityAction">
+                <label>
+                    <input type="submit" class="button action" value="Enregistrer">
+                </label>
+                <label>
+                    <input type="checkbox" name="instagram_activated" value="1" <?= $results['instagram_activated'] ? 'checked' : '' ?>> Activer le module
+                </label>
+            </div>
+        </form>
     </section>
-
-    <section class="notifySection">
-        <?= $notification ?? '' ?>
-    </section>
-</form>
+</div>
+<section class="notifySection">
+    <?= $success ?? $error ?? '' ?>
+</section>

@@ -14,6 +14,10 @@ function dd(...$var)
     die;
 }
 
+function sanitize(string $s)
+{
+    return trim(htmlspecialchars($s));
+}
 
 function httpRequest(string $url, array $options = [])
 {
