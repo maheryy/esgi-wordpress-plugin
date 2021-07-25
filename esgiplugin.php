@@ -28,6 +28,7 @@ function panelCommunity_activation() {
 		'twitch_activated' => 'true',
 		//Youtube
 		'youtube_account' => '',
+		'youtube_account_id' => '',
 		'youtube_button_visible' => 'true',
 		'youtube_views_visible' => 'true',
 		'youtube_likes_visible' => 'true',
