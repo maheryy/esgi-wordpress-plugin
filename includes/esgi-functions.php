@@ -101,22 +101,48 @@ function panelCommunity_fullPannelShortcode()
 
 function panelCommunity_panelTwitchShortcode()
 {
-	$twitchAccount = 'monstercat';
+	require __DIR__ . '/../src/providers/Twitch.php';
+	global $wpdb;
 
-	return "<section>
-		<h1>Twitch</h1>
-		<div id='twitch-embed'></div>
+	$template = '<section>
+		<h3>Twitch</h3>
+		<div class="twitch-frames">
+		%content%
+		</div>
+		%button%
+	</section>';
 
-		<script src='https://embed.twitch.tv/embed/v1.js'></script>
-		<script type='text/javascript'>
-			new Twitch.Embed('twitch-embed', {
-				width: '100%',
-				height: 480,
-				channel: '" . $twitchAccount . "',
-				allowfullscreen: true
-			});
-		</script>
-	</section>";
+	$twitchFields = $wpdb->get_results($wpdb->prepare("SELECT DISTINCT * FROM {$wpdb->prefix}panelCommunity_table WHERE nameKey LIKE 'twitch%'"), ARRAY_A);
+	$settings = [];
+	foreach ($twitchFields as $row) {
+		$settings[$row['nameKey']] = $row['valueKey'];
+	}
+
+	if (empty($settings['twitch_account']) || !$settings['twitch_activated']) {
+		return '';
+	}
+
+	$twitchProvider = new Twitch($settings['twitch_account'], $settings['twitch_allow_fullscreen']);
+
+	var_dump($settings);
+
+	$content = '<div style="display: flex;">'
+		. $twitchProvider->getCurrentLive()
+		. ($settings['twitch_chat_visible']
+			? $twitchProvider->getCurrentChat()
+			: ''
+		)
+	.'</div>';
+
+	$button = $settings['twitch_button_visible']
+		? '<button></button>'
+		: '';
+
+	return str_replace(
+		['%content%', '%button%'],
+		[$content, $button],
+		$template
+	);
 }
 
 function panelCommunity_panelYoutubeShortcode()
@@ -139,24 +165,26 @@ function panelCommunity_panelYoutubeShortcode()
 	}
 
 	if (empty($settings['youtube_account_id'])) {
-		return '<section><h4> Aucun compte n\'est associé à youtube </h4</section>';
+		return '';
 	}
 
 	/* Code fonctionnel : pas abuser sur les call API */
-	// $youtube = new Youtube($settings['youtube_account_id']);
-	// $with_details = $settings['youtube_views_visible'] === '1' || $settings['youtube_likes_visible'] === '1' || $settings['youtube_dislikes_visible'] === '1';
+	/*
+	$youtube = new Youtube($settings['youtube_account_id']);
+	$with_details = $settings['youtube_views_visible'] === '1' || $settings['youtube_likes_visible'] === '1' || $settings['youtube_dislikes_visible'] === '1';
 
-	// switch ($settings['youtube_type_videos']) {
-	// 	case 'last':
-	// 		$videos = $youtube->getLatestVideos((int)$settings['youtube_nb_videos'], $with_details);
-	// 		break;
-	// 	case 'moreViews':
-	// 		$videos = $youtube->getMostViewedVideos((int)$settings['youtube_nb_videos'], $with_details);
-	// 		break;
-	// 	case 'moreLikes':
-	// 		$videos = $youtube->getMostLikedVideos((int)$settings['youtube_nb_videos'], $with_details);
-	// 		break;
-	// }
+	switch ($settings['youtube_type_videos']) {
+		case 'last':
+		 	$videos = $youtube->getLatestVideos((int)$settings['youtube_nb_videos'], $with_details);
+	 		break;
+	 	case 'moreViews':
+			$videos = $youtube->getMostViewedVideos((int)$settings['youtube_nb_videos'], $with_details);
+			break;
+		case 'moreLikes':
+			$videos = $youtube->getMostLikedVideos((int)$settings['youtube_nb_videos'], $with_details);
+			break;
+	}
+	*/
 
 	/* Vrai données pour les tests d'affichage */
 	$videos = [
