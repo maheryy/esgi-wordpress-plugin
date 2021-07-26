@@ -142,7 +142,7 @@ $maxOptions = [
     </section>
 
     <!-- Remove hidden when it works -->
-    <section class="panelCommunityContainer hidden">
+    <section class="panelCommunityContainer">
         <form method="POST" class="panelCommunityForm">
             <input type="hidden" name="action" value="twitch">
             <div class="panelCommunityContentForm">
@@ -155,12 +155,17 @@ $maxOptions = [
                 </div>
                 <div style="margin-bottom: 5px;">
                     <label>
-                        <input type="checkbox" name="twitch_button_visible" value="1" <?= $results['twitch_tchat_visible'] ? 'checked' : '' ?>> Afficher le bouton "Suivre"
+                        <input type="checkbox" name="twitch_button_visible" value="1" <?= $results['twitch_button_visible'] ? 'checked' : '' ?>> Afficher le bouton "Suivre"
                     </label>
                 </div>
                 <div>
                     <label>
-                        <input type="checkbox" name="twitch_tchat_visible" value="1" <?= $results['twitch_tchat_visible'] ? 'checked' : '' ?>> Afficher le tchat
+                        <input type="checkbox" name="twitch_chat_visible" value="1" <?= $results['twitch_chat_visible'] ? 'checked' : '' ?>> Afficher le tchat
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        <input type="checkbox" name="twitch_allow_fullscreen" value="1" <?= $results['twitch_allow_fullscreen'] ? 'checked' : '' ?>> Permettre l'affichage en plein écran
                     </label>
                 </div>
             </div>

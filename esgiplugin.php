@@ -23,27 +23,28 @@ function panelCommunity_activation() {
 	$keys = [
 		//Twitch
 		'twitch_account' => '', 
-		'twitch_button_visible' => 'true',  
-		'twitch_tchat_visible' => 'true',  
-		'twitch_activated' => 'true',
+		'twitch_button_visible' => '1',  
+		'twitch_chat_visible' => '1',  
+		'twitch_allow_fullscreen' => '1',
+		'twitch_activated' => '1',
 		//Youtube
 		'youtube_account' => '',
 		'youtube_account_id' => '',
-		'youtube_button_visible' => 'true',
-		'youtube_views_visible' => 'true',
-		'youtube_likes_visible' => 'true',
-		'youtube_dislikes_visible' => 'true',
+		'youtube_button_visible' => '1',
+		'youtube_views_visible' => '1',
+		'youtube_likes_visible' => '1',
+		'youtube_dislikes_visible' => '1',
 		'youtube_type_videos' => 'last',
 		'youtube_nb_videos' => '3',
-		'youtube_activated' => 'true',
+		'youtube_activated' => '1',
 		//Instagram
 		'instagram_account' => '',
-		'instagram_button_visible' => 'true',
-		'instagram_description_visible' => 'true',
-		'instagram_likes_visible' => 'true',
+		'instagram_button_visible' => '1',
+		'instagram_description_visible' => '1',
+		'instagram_likes_visible' => '1',
 		'instagram_type_posts' => 'last',
 		'instagram_nb_posts' => '3',
-		'instagram_activated' => 'true',
+		'instagram_activated' => '1',
 	];
 
 	foreach ($keys as $key => $value) {
@@ -72,7 +73,7 @@ function panelCommunity_deactivation() {
 		
 		var confirmation = confirm(message);
 		if (confirmation){
-			<?php $wpdb->query("DROP TABLE IF NOT EXISTS {$wpdb->prefix}panelCommunity_table ;");?>
+			<?php $wpdb->query("DROP TABLE {$wpdb->prefix}panelCommunity_table ;");?>
 		}
 	</script>
 	<?php
