@@ -184,45 +184,38 @@ $maxOptions = [
         </form>
     </section>
 
-    <!-- Remove hidden when it works -->
+
     <section class="panelCommunityContainer">
         <form method="POST" class="panelCommunityForm">
-            <input type="hidden" name="action" value="instagram">
+            <input type="hidden" name="action" value="dailymotion">
             <div class="panelCommunityContentForm">
-                <h2>Instagram</h2>
+                <h2>Dailymotion</h2>
                 <div style="margin-bottom: 20px;">
-                    <label for="insta_account">
+                    <label for="dailymotion_account">
                         Compte
                     </label><br>
-                    <input type="text" id="instagram_account" name="instagram_account" value="<?= $results['instagram_account'] ?>">
+                    <input type="text" id="dailymotion_account" name="dailymotion_account" value="<?= $results['dailymotion_account'] ?>">
                 </div>
 
-                <div style="margin-bottom: 5px;">
-                    <label><input type="checkbox" name="instagram_button_visible" value="1" <?= $results['instagram_button_visible'] ? 'checked' : '' ?>> Afficher le bouton "Follow"</label>
-                </div>
-                <div style="margin-bottom: 5px;">
-                    <label><input type="checkbox" name="instagram_description_visible" value="1" <?= $results['instagram_description_visible'] ? 'checked' : '' ?>> Afficher la description du post</label>
-                </div>
-                <div style="margin-bottom: 20px;">
-                    <label><input type="checkbox" name="instagram_likes_visible" value="1" <?= $results['instagram_likes_visible'] ? 'checked' : '' ?>> Afficher le nombre de likes</label>
-                </div>
 
                 <div style="margin-bottom: 5px;">
                     <label>
-                        <select name="instagram_type_posts">
-                            <?php foreach ($sortOptions as $key => $value) : ?>
-                                <option value="<?= $key ?>" <?= $key == $results['instagram_type_posts'] ? 'selected' : '' ?>><?= $value ?></option>
-                            <?php endforeach; ?>
-                        </select>
+                        <input type="checkbox" name="dailymotion_button_visible" value="1" <?= $results['dailymotion_button_visible'] ? 'checked' : '' ?>> Afficher le bouton de chaîne
                     </label>
                 </div>
+                <div style="margin-bottom: 25px;">
+                    <label>
+                        <input type="checkbox" name="dailymotion_title_visible" value="1" <?= $results['dailymotion_title_visible'] ? 'checked' : '' ?>> Afficher le titre des vidéos
+                    </label>
+                </div>
+                
                 <div>
                     <label>
-                        <select name="instagram_nb_posts">
+                        <select name="dailymotion_nb_videos">
                             <?php foreach ($maxOptions as $key => $value) : ?>
-                                <option value="<?= $key ?>" <?= $key == $results['instagram_nb_posts'] ? 'selected' : '' ?>><?= $value ?></option>
+                                <option value="<?= $key ?>" <?= $key == $results['dailymotion_nb_videos'] ? 'selected' : '' ?>><?= $value ?></option>
                             <?php endforeach; ?>
-                        </select> Posts à afficher
+                        </select> Vidéos à afficher
                     </label>
                 </div>
             </div>
@@ -231,7 +224,7 @@ $maxOptions = [
                     <input type="submit" class="button action" value="Enregistrer">
                 </label>
                 <label>
-                    <input type="checkbox" name="instagram_activated" value="1" <?= $results['instagram_activated'] ? 'checked' : '' ?>> Activer le module
+                    <input type="checkbox" name="dailymotion_activated" value="1" <?= $results['dailymotion_activated'] ? 'checked' : '' ?>> Activer le module
                 </label>
             </div>
         </form>

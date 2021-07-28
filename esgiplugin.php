@@ -38,14 +38,12 @@ function panelCommunity_activation() {
 		'youtube_type_videos' => 'last',
 		'youtube_nb_videos' => '3',
 		'youtube_activated' => '1',
-		//Instagram
-		'instagram_account' => '',
-		'instagram_button_visible' => '1',
-		'instagram_description_visible' => '1',
-		'instagram_likes_visible' => '1',
-		'instagram_type_posts' => 'last',
-		'instagram_nb_posts' => '3',
-		'instagram_activated' => '1',
+		//Dailymotion
+		'dailymotion_account' => '',
+		'dailymotion_title_visible' => '1',
+		'dailymotion_button_visible' => '1',
+		'dailymotion_nb_videos' => '3',
+		'dailymotion_activated' => '1',
 	];
 
 	foreach ($keys as $key => $value) {
