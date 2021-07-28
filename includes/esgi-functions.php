@@ -53,6 +53,7 @@ class panelCommunityWidget extends WP_Widget
 		$title = apply_filters('widget_title', $instance['title']);
 		$twitch_widget = apply_filters('twitch_widget', $instance['twitch_widget']);
 		$youtube_widget = apply_filters('youtube_widget', $instance['youtube_widget']);
+		$dailymotion_widget = apply_filters('dailymotion_widget', $instance['dailymotion_widget']);
 		echo $args['before_widget'];
 
 		//if title is present
@@ -92,6 +93,22 @@ class panelCommunityWidget extends WP_Widget
 				</a>';
 			}
 		}
+
+		
+		if ($dailymotion_widget === 'on')  {
+			$dailymotionAccount = json_decode(json_encode(
+				$wpdb->get_results(
+					$wpdb->prepare("SELECT valueKey FROM {$wpdb->prefix}panelCommunity_table WHERE nameKey='dailymotion_account'")
+				)
+			), true)[0]['valueKey'] ?? '';
+			if (!empty($dailymotionAccount)) {
+				echo '<a href="https://www.dailymotion.com/' . $dailymotionAccount . '" target="_blank">
+					<button>
+						Dailymotion
+					</button>
+				</a>';
+			}
+		}
 		
 		echo $args['after_widget'];
 	}
@@ -103,11 +120,13 @@ class panelCommunityWidget extends WP_Widget
 			$title = $instance['title'];
 			$twitch_widget = $instance['twitch_widget'];
 			$youtube_widget = $instance['youtube_widget'];
+			$dailymotion_widget = $instance['dailymotion_widget'];
 		}
 		else {
 			$title = __('Panel Community', 'panelCommunityWidget_domain');
 			$twitch_widget = __('Panel Community', 'panelCommunityWidget_domain');
 			$youtube_widget = __('Panel Community', 'panelCommunityWidget_domain');
+			$dailymotion_widget = __('Panel Community', 'panelCommunityWidget_domain');
 		}
 ?>
 		<p>
@@ -122,6 +141,10 @@ class panelCommunityWidget extends WP_Widget
 			<input id="<?php echo $this->get_field_id('youtube_widget'); ?>" name="<?php echo $this->get_field_name('youtube_widget'); ?>" type="checkbox" <?php echo esc_attr($youtube_widget) === 'on' ? 'checked' : ''; ?>/>
 			<label for="<?php echo $this->get_field_id('youtube_widget'); ?>">Youtube</label>
 		</p>
+		<p>
+			<input id="<?php echo $this->get_field_id('dailymotion_widget'); ?>" name="<?php echo $this->get_field_name('dailymotion_widget'); ?>" type="checkbox" <?php echo esc_attr($dailymotion_widget) === 'on' ? 'checked' : ''; ?>/>
+			<label for="<?php echo $this->get_field_id('dailymotion_widget'); ?>">Dailymotion</label>
+		</p>
 <?php
 	}
 
@@ -131,6 +154,7 @@ class panelCommunityWidget extends WP_Widget
 		$instance['title'] = (!empty($new_instance['title'])) ? strip_tags($new_instance['title']) : '';
 		$instance['twitch_widget'] = (!empty($new_instance['twitch_widget'])) ? strip_tags($new_instance['twitch_widget']) : '';
 		$instance['youtube_widget'] = (!empty($new_instance['youtube_widget'])) ? strip_tags($new_instance['youtube_widget']) : '';
+		$instance['dailymotion_widget'] = (!empty($new_instance['dailymotion_widget'])) ? strip_tags($new_instance['dailymotion_widget']) : '';
 		return $instance;
 	}
 }
@@ -139,14 +163,14 @@ class panelCommunityWidget extends WP_Widget
 add_shortcode('fullPanel', 'panelCommunity_fullPannelShortcode');
 add_shortcode('panelTwitch', 'panelCommunity_panelTwitchShortcode');
 add_shortcode('panelYoutube', 'panelCommunity_panelYoutubeShortcode');
-add_shortcode('panelInstagram', 'panelCommunity_panelInstagramShortcode');
+add_shortcode('panelDailymotion', 'panelCommunity_panelDailymotionShortcode');
 
 function panelCommunity_fullPannelShortcode()
 {
 	return "<div>
 		" . panelCommunity_panelTwitchShortcode() . "
 		" . panelCommunity_panelYoutubeShortcode() . "
-		" . panelCommunity_panelInstagramShortcode() . "
+		" . panelCommunity_panelDailymotionShortcode() . "
 	</div>";
 }
 
@@ -160,7 +184,6 @@ function panelCommunity_panelTwitchShortcode()
 		<div class="twitch-frames">
 		%content%
 		</div>
-		%button%
 	</section>';
 
 	$twitchFields = $wpdb->get_results($wpdb->prepare("SELECT DISTINCT * FROM {$wpdb->prefix}panelCommunity_table WHERE nameKey LIKE 'twitch%'"), ARRAY_A);
@@ -186,13 +209,9 @@ function panelCommunity_panelTwitchShortcode()
 		)
 	.'</div>';
 
-	$button = $settings['twitch_button_visible']
-		? '<button></button>'
-		: '';
-
 	return str_replace(
-		['%content%', '%button%'],
-		[$content, $button],
+		['%content%'],
+		[$content],
 		$template
 	);
 }
@@ -207,6 +226,7 @@ function panelCommunity_panelYoutubeShortcode()
 		<div class="youtube-frames">
 		%content%
 		</div>
+		%button%
 	</section>';
 
 	$youtubeFields = $wpdb->get_results($wpdb->prepare("SELECT DISTINCT * FROM {$wpdb->prefix}panelCommunity_table WHERE nameKey LIKE 'youtube%'"), ARRAY_A);
@@ -265,24 +285,66 @@ function panelCommunity_panelYoutubeShortcode()
 			</div>' . PHP_EOL;
 	}
 	$content .= '</div>';
+	
 	$button = $settings['youtube_button_visible'] === '1'
 		? '<script src="https://apis.google.com/js/platform.js"></script>
 		<div class="g-ytsubscribe" data-channel="LeFatShow" data-layout="default" data-count="default"></div>'
 		: '';
 
 	return str_replace(
-		['%content%'],
-		[$content],
+		['%content%', '%button%'],
+		[$content, $button],
 		$template
 	);
 }
 
-function panelCommunity_panelInstagramShortcode()
+function panelCommunity_panelDailymotionShortcode()
 {
-	$html = "<section>
-		<h1>Instagram</h1>";
+	require __DIR__ . '/../src/providers/Dailymotion.php';
+	global $wpdb;
 
-	$html .= "</section>";
+	$template = '<section>
+		<h3>Dailymotion</h3>
+		<div class="dailymotion-frames">
+		%content%
+		</div>
+		%button%
+	</section>';
 
-	return $html;
+	$dailymotionFields = $wpdb->get_results(
+		$wpdb->prepare(
+			"SELECT DISTINCT * FROM {$wpdb->prefix}panelCommunity_table WHERE nameKey LIKE 'dailymotion%'"
+		), 
+		ARRAY_A
+	);
+	$settings = [];
+	foreach ($dailymotionFields as $row) {
+		$settings[$row['nameKey']] = $row['valueKey'];
+	}
+
+	if (empty($settings['dailymotion_account']) || !$settings['dailymotion_activated']) {
+		return '';
+	}
+
+	$dailymotion = new Dailymotion($settings['dailymotion_account']);
+
+	$content = $dailymotion->getContent(
+		[
+			'nb_videos' => $settings['dailymotion_nb_videos'],
+			'title_visible' => $settings['dailymotion_title_visible'],
+		]
+	);
+
+	$button = '';
+	if ($settings['dailymotion_button_visible']) {
+		$button = '<a href="https://www.dailymotion.com/' . $settings['dailymotion_account'] . '" target="_blank">
+			<button>' . ucfirst($settings['dailymotion_account']) . '</button>
+		</a>';
+	}
+
+	return str_replace(
+		['%content%', '%button%'],
+		[$content, $button],
+		$template
+	);
 }
