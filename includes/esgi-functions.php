@@ -48,7 +48,11 @@ class panelCommunityWidget extends WP_Widget
 
 	public function widget($args, $instance)
 	{
+		global $wpdb;
+		//Get the title, and if buttons are visible or not
 		$title = apply_filters('widget_title', $instance['title']);
+		$twitch_widget = apply_filters('twitch_widget', $instance['twitch_widget']);
+		$youtube_widget = apply_filters('youtube_widget', $instance['youtube_widget']);
 		echo $args['before_widget'];
 
 		//if title is present
@@ -57,21 +61,66 @@ class panelCommunityWidget extends WP_Widget
 				. $title
 				. $args['after_title'];
 		//output
-		echo __('Panel Community', 'panelCommunityWidget_domain');
+		
+		if ($twitch_widget === 'on') {
+			$twitchAccount = json_decode(json_encode(
+				$wpdb->get_results(
+					$wpdb->prepare("SELECT valueKey FROM {$wpdb->prefix}panelCommunity_table WHERE nameKey='twitch_account'")
+				)
+			), true)[0]['valueKey'] ?? '';
 
+			if (!empty($twitchAccount)) {
+				echo '<a href="https://www.twitch.tv/' . $twitchAccount . '" target="_blank">
+					<button style="background-color: blueviolet;">
+						Twitch
+					</button>
+				</a>';
+			}
+		}
+
+		if ($youtube_widget === 'on') {
+			$youtubeAccount = json_decode(json_encode(
+				$wpdb->get_results(
+					$wpdb->prepare("SELECT valueKey FROM {$wpdb->prefix}panelCommunity_table WHERE nameKey='youtube_account'")
+				)
+			), true)[0]['valueKey'] ?? '';
+			if (!empty($youtubeAccount)) {
+				echo '<a href="https://www.youtube.com/c/' . $youtubeAccount . '" target="_blank">
+					<button style="background-color: red;">
+						Youtube
+					</button>
+				</a>';
+			}
+		}
+		
 		echo $args['after_widget'];
 	}
 
 	public function form($instance)
 	{
-		if (isset($instance['title']))
+		if (isset($instance['title'])) {
+			
 			$title = $instance['title'];
-		else
+			$twitch_widget = $instance['twitch_widget'];
+			$youtube_widget = $instance['youtube_widget'];
+		}
+		else {
 			$title = __('Panel Community', 'panelCommunityWidget_domain');
+			$twitch_widget = __('Panel Community', 'panelCommunityWidget_domain');
+			$youtube_widget = __('Panel Community', 'panelCommunityWidget_domain');
+		}
 ?>
 		<p>
 			<label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:'); ?></label>
-			<input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo esc_attr($title); ?>" />
+			<input id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo esc_attr($title); ?>" />
+		</p>
+		<p>
+			<input id="<?php echo $this->get_field_id('twitch_widget'); ?>" name="<?php echo $this->get_field_name('twitch_widget'); ?>" type="checkbox" <?php echo esc_attr($twitch_widget) === 'on' ? 'checked' : ''; ?>/>
+			<label for="<?php echo $this->get_field_id('twitch_widget'); ?>">Twitch</label>
+		</p>
+		<p>
+			<input id="<?php echo $this->get_field_id('youtube_widget'); ?>" name="<?php echo $this->get_field_name('youtube_widget'); ?>" type="checkbox" <?php echo esc_attr($youtube_widget) === 'on' ? 'checked' : ''; ?>/>
+			<label for="<?php echo $this->get_field_id('youtube_widget'); ?>">Youtube</label>
 		</p>
 <?php
 	}
@@ -80,6 +129,8 @@ class panelCommunityWidget extends WP_Widget
 	{
 		$instance = array();
 		$instance['title'] = (!empty($new_instance['title'])) ? strip_tags($new_instance['title']) : '';
+		$instance['twitch_widget'] = (!empty($new_instance['twitch_widget'])) ? strip_tags($new_instance['twitch_widget']) : '';
+		$instance['youtube_widget'] = (!empty($new_instance['youtube_widget'])) ? strip_tags($new_instance['youtube_widget']) : '';
 		return $instance;
 	}
 }
@@ -122,9 +173,10 @@ function panelCommunity_panelTwitchShortcode()
 		return '';
 	}
 
-	$twitchProvider = new Twitch($settings['twitch_account'], $settings['twitch_allow_fullscreen']);
-
-	var_dump($settings);
+	$twitchProvider = new Twitch($settings['twitch_account'], [
+		'twitch_allow_fullscreen' => $settings['twitch_allow_fullscreen'],
+		'twitch_autoplay' => $settings['twitch_autoplay'],
+	]);
 
 	$content = '<div style="display: flex;">'
 		. $twitchProvider->getCurrentLive()
@@ -155,7 +207,6 @@ function panelCommunity_panelYoutubeShortcode()
 		<div class="youtube-frames">
 		%content%
 		</div>
-		%button%
 	</section>';
 
 	$youtubeFields = $wpdb->get_results($wpdb->prepare("SELECT DISTINCT * FROM {$wpdb->prefix}panelCommunity_table WHERE nameKey LIKE 'youtube%'"), ARRAY_A);
@@ -199,26 +250,29 @@ function panelCommunity_panelYoutubeShortcode()
 		return "<section><h4> Aucune vidéo trouvée pour le compte {$settings['youtube_account']}</h4</section>";
 	}
 
-	$content = '';
+	$content = '<div style="display: flex;">';
 	foreach ($videos as $video) {
 		$content .=
-			'<div class="youtube-frame">
+			'<div class="youtube-frame" style="flex: 1;">
 				<iframe width="420" height="300" src="https://www.youtube.com/embed/' . $video['id'] . '"></iframe>
 				<div class="youtube-stats">' .
-			($settings['youtube_views_visible'] === '1' ? '<div class="youtube-stat">' . $video['views'] . ' vues</div>' : '') .
-			($settings['youtube_likes_visible'] === '1' ? '<div class="youtube-stat">' . $video['likes'] . ' likes</div>' : '') .
-			($settings['youtube_dislikes_visible'] === '1' ? '<div class="youtube-stat">' . $video['dislikes'] . ' dislikes</div>' : '') .
-			'</div>
+					($settings['youtube_views_visible'] === '1' ? '<div class="youtube-stat">' . $video['views'] . ' vues</div>' : '') .
+					'<div style="font-size: medium;">' .
+						($settings['youtube_likes_visible'] === '1' ? '<div class="youtube-stat">' . $video['likes'] . ' likes</div>' : '') .
+						($settings['youtube_dislikes_visible'] === '1' ? '<div class="youtube-stat">' . $video['dislikes'] . ' dislikes</div>' : '') .
+					'</div>' .
+				'</div>
 			</div>' . PHP_EOL;
 	}
+	$content .= '</div>';
 	$button = $settings['youtube_button_visible'] === '1'
 		? '<script src="https://apis.google.com/js/platform.js"></script>
 		<div class="g-ytsubscribe" data-channel="LeFatShow" data-layout="default" data-count="default"></div>'
 		: '';
 
 	return str_replace(
-		['%content%', '%button%'],
-		[$content, $button],
+		['%content%'],
+		[$content],
 		$template
 	);
 }

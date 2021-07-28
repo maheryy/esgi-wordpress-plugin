@@ -155,17 +155,22 @@ $maxOptions = [
                 </div>
                 <div style="margin-bottom: 5px;">
                     <label>
-                        <input type="checkbox" name="twitch_button_visible" value="1" <?= $results['twitch_button_visible'] ? 'checked' : '' ?>> Afficher le bouton "Suivre"
-                    </label>
-                </div>
-                <div>
-                    <label>
                         <input type="checkbox" name="twitch_chat_visible" value="1" <?= $results['twitch_chat_visible'] ? 'checked' : '' ?>> Afficher le tchat
                     </label>
                 </div>
-                <div>
+                <div style="margin-bottom: 5px;">
                     <label>
                         <input type="checkbox" name="twitch_allow_fullscreen" value="1" <?= $results['twitch_allow_fullscreen'] ? 'checked' : '' ?>> Permettre l'affichage en plein écran
+                    </label>
+                </div>
+                <div style="margin-bottom: 5px;">
+                    <label>
+                        <input type="checkbox" name="twitch_autoplay" value="1" <?= $results['twitch_autoplay'] ? 'checked' : '' ?>> Lancer le live à l'arrivée sur la page
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        <input type="checkbox" name="twitch_muted" value="1" <?= $results['twitch_muted'] ? 'checked' : '' ?>> Mettre le son en muet
                     </label>
                 </div>
             </div>

@@ -22,10 +22,11 @@ function panelCommunity_activation() {
 
 	$keys = [
 		//Twitch
-		'twitch_account' => '', 
-		'twitch_button_visible' => '1',  
+		'twitch_account' => '',
 		'twitch_chat_visible' => '1',  
 		'twitch_allow_fullscreen' => '1',
+		'twitch_autoplay' => '1',
+		'twitch_muted' => '0',
 		'twitch_activated' => '1',
 		//Youtube
 		'youtube_account' => '',
