@@ -141,7 +141,6 @@ $maxOptions = [
         </form>
     </section>
 
-    <!-- Remove hidden when it works -->
     <section class="panelCommunityContainer">
         <form method="POST" class="panelCommunityForm">
             <input type="hidden" name="action" value="twitch">
@@ -186,7 +185,7 @@ $maxOptions = [
     </section>
 
     <!-- Remove hidden when it works -->
-    <section class="panelCommunityContainer hidden">
+    <section class="panelCommunityContainer">
         <form method="POST" class="panelCommunityForm">
             <input type="hidden" name="action" value="instagram">
             <div class="panelCommunityContentForm">

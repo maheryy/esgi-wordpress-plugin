@@ -160,7 +160,6 @@ function panelCommunity_panelTwitchShortcode()
 		<div class="twitch-frames">
 		%content%
 		</div>
-		%button%
 	</section>';
 
 	$twitchFields = $wpdb->get_results($wpdb->prepare("SELECT DISTINCT * FROM {$wpdb->prefix}panelCommunity_table WHERE nameKey LIKE 'twitch%'"), ARRAY_A);
@@ -186,13 +185,9 @@ function panelCommunity_panelTwitchShortcode()
 		)
 	.'</div>';
 
-	$button = $settings['twitch_button_visible']
-		? '<button></button>'
-		: '';
-
 	return str_replace(
-		['%content%', '%button%'],
-		[$content, $button],
+		['%content%'],
+		[$content],
 		$template
 	);
 }
@@ -207,6 +202,7 @@ function panelCommunity_panelYoutubeShortcode()
 		<div class="youtube-frames">
 		%content%
 		</div>
+		%button%
 	</section>';
 
 	$youtubeFields = $wpdb->get_results($wpdb->prepare("SELECT DISTINCT * FROM {$wpdb->prefix}panelCommunity_table WHERE nameKey LIKE 'youtube%'"), ARRAY_A);
@@ -265,14 +261,15 @@ function panelCommunity_panelYoutubeShortcode()
 			</div>' . PHP_EOL;
 	}
 	$content .= '</div>';
+	
 	$button = $settings['youtube_button_visible'] === '1'
 		? '<script src="https://apis.google.com/js/platform.js"></script>
 		<div class="g-ytsubscribe" data-channel="LeFatShow" data-layout="default" data-count="default"></div>'
 		: '';
 
 	return str_replace(
-		['%content%'],
-		[$content],
+		['%content%', '%button%'],
+		[$content, $button],
 		$template
 	);
 }
