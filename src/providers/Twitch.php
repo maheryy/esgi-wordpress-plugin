@@ -7,12 +7,12 @@ class Twitch
     private string $base_url;
 
     private string $channel;
-    private $allowFullscreen;
+    private $options;
 
-    public function __construct(string $channel, $allowFullscreen)
+    public function __construct(string $channel, $options)
     {
         $this->channel = $channel;
-        $this->allowFullscreen = $allowFullscreen;
+        $this->options = $options;
         $this->api_secret = 'TWITCH_SECRET';
         $this->base_url = 'twitch';
     }
@@ -28,9 +28,18 @@ class Twitch
             parent='localhost'
             width='100%'
             height='480'
-            allowfullscreen='" . ($this->allowFullscreen ? 'true' : 'false') . "'
+            allowfullscreen='" . $this->getOptionValue('twitch_autoplay', 'true') . "'
+            autoplay='" . $this->getOptionValue('twitch_autoplay', 'true') . "'
+            muted='" . $this->getOptionValue('twitch_muted', 'false') . "'
             style='flex: 5;'>
         </iframe>";
+    }
+
+    private function getOptionValue($nameOption, $defaultValue)
+    {
+        return !empty($this->options[$nameOption])
+            ? $this->options[$nameOption]
+            : $defaultValue;
     }
 
 
