@@ -14,6 +14,10 @@ function dd(...$var)
     die;
 }
 
+function prettyNumber($n) {
+    return number_format($n, 0, ',', ' ');
+}
+
 function sanitize(string $s)
 {
     return trim(htmlspecialchars($s));

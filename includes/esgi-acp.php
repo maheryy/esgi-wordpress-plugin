@@ -11,39 +11,39 @@ if (!empty($_POST)) {
     # Récupération de tous les champs 'key' disponible dans la bdd
     $allFields = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$wpdb->prefix}panelCommunity_table WHERE nameKey LIKE '" . $_POST['action'] . "%'"), ARRAY_A);
     $data = $_POST;
-    switch ($_POST['action']) {
-        case 'youtube':
-            # Recherche si le compte n'a pas changé
-            foreach ($allFields as $row) {
-                if ($row['nameKey'] === 'youtube_account' && $row['valueKey'] !== sanitize($data['youtube_account'])) {
-                    $changed = true;
-                    break;
-                }
-            }
-            if ($changed) {
-                if ($account = Youtube::verifyChannel(sanitize($data['youtube_account']))) {
-                    $data['youtube_account_id'] = $account['id'];
-                    $data['youtube_account'] = $account['name'];
-                } else {
-                    $error = "Le compte youtube {$data['youtube_account']} n'est pas trouvé";
-                }
-            }
-            break;
-            // case 'instagram':
 
-            //     break;
-            // case 'twitch':
 
-            //     break;
+    if ($_POST['action'] === 'youtube') {
+        # Recherche si le compte n'a pas changé
+        
+        $youtube_account = sanitize($data['youtube_account']);
+        foreach ($allFields as $row) {
+            if($row['nameKey'] === 'youtube_account_id') {
+                $data['youtube_account_id'] = $row['valueKey'];
+            }
+            if ($row['nameKey'] === 'youtube_account' && $row['valueKey'] !== $youtube_account) {
+                $channelHasChanged = true;
+                break;
+            }
+        }
+        if ($channelHasChanged) {
+            $account = Youtube::verifyChannel($youtube_account);
+            if ($account) {
+                $data['youtube_account_id'] = $account['id'];
+                $data['youtube_account'] = $account['name'];
+            } else {
+                $error = "Le compte youtube {$data['youtube_account']} n'est pas trouvé";
+            }
+        }
     }
+
 
     if (!isset($error)) {
         foreach ($allFields as $row) {
             # Vérification de chaque champ POST avec les champs existant en bdd
-            $newValue = !empty($data[$row['nameKey']]) ? sanitize($data[$row['nameKey']]) : 0;
+            $newValue = !empty($data[$row['nameKey']]) ? sanitize($data[$row['nameKey']]) : null;
             $wpdb->update("{$wpdb->prefix}panelCommunity_table", ['valueKey' => $newValue], ['nameKey' => $row['nameKey']]);
         }
-
         $success = "<p>Les modifications viennent d'être enregistrées.</p>";
     }
 }
@@ -208,7 +208,7 @@ $maxOptions = [
                         <input type="checkbox" name="dailymotion_title_visible" value="1" <?= $results['dailymotion_title_visible'] ? 'checked' : '' ?>> Afficher le titre des vidéos
                     </label>
                 </div>
-                
+
                 <div>
                     <label>
                         <select name="dailymotion_nb_videos">
