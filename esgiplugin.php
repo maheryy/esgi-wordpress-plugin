@@ -37,13 +37,13 @@ function panelCommunity_activation() {
 		'youtube_likes_visible' => '1',
 		'youtube_dislikes_visible' => '1',
 		'youtube_type_videos' => 'last',
-		'youtube_nb_videos' => '3',
+		'youtube_nb_videos' => '2',
 		'youtube_activated' => '1',
 		//Dailymotion
 		'dailymotion_account' => '',
 		'dailymotion_title_visible' => '1',
 		'dailymotion_button_visible' => '1',
-		'dailymotion_nb_videos' => '3',
+		'dailymotion_nb_videos' => '2',
 		'dailymotion_activated' => '1',
 	];
 

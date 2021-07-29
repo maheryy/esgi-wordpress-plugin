@@ -228,8 +228,8 @@ function panelCommunity_panelYoutubeShortcode()
 		<h3>Youtube</h3>
 		%button%
 		</div>
-		<div class="youtube-frames" style="width:100%; display: flex; flex-wrap: wrap; justify-content: space-evenly; align-items: center">
-		%content%
+		<div style="display: flex; flex-wrap: wrap;">
+			%content%
 		</div>
 	</section>';
 
@@ -266,8 +266,8 @@ function panelCommunity_panelYoutubeShortcode()
 	$content = '';
 	foreach ($videos as $video) {
 		$content .=
-			'<div class="youtube-frame" style="box-sizing: border-box; padding: 1em .5em;">
-				<iframe width="280" height="170" src="https://www.youtube.com/embed/' . $video['id'] . '"></iframe>
+			'<div class="youtube-frame" style="flex: 1; min-width: 50%;">
+				<iframe width="100%" height="300" src="https://www.youtube.com/embed/' . $video['id'] . '"></iframe>
 				<div class="youtube-stats">' .
 			($settings['youtube_views_visible'] === '1' ? '<div class="youtube-stat">' . $video['views'] . ' vues</div>' : '') .
 			'<div style="font-size: medium;">' .
@@ -301,8 +301,8 @@ function panelCommunity_panelDailymotionShortcode()
 			<h3>Dailymotion</h3>
 			%button%
 		</div>
-		<div class="dailymotion-frames">
-		%content%
+		<div style="display: flex; flex-wrap: wrap;">
+			%content%
 		</div>
 	</section>';
 
