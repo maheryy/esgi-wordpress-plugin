@@ -1,11 +1,9 @@
 <?php
-
-
 global $wpdb;
 
 if (!empty($_POST)) {
     # Chargement des providers et du .env qui contient les clés api
-    require __DIR__ . '/../src/providers/Youtube.php';
+    require __DIR__ . '/providers/Youtube.php';
     loadDotEnv(__DIR__ . '/../.env');
 
     # Récupération de tous les champs 'key' disponible dans la bdd
@@ -13,12 +11,11 @@ if (!empty($_POST)) {
     $data = $_POST;
 
 
+    // Spécifité pour youtube
     if ($_POST['action'] === 'youtube') {
-        # Recherche si le compte n'a pas changé
-        
         $youtube_account = sanitize($data['youtube_account']);
         foreach ($allFields as $row) {
-            if($row['nameKey'] === 'youtube_account_id') {
+            if ($row['nameKey'] === 'youtube_account_id') {
                 $data['youtube_account_id'] = $row['valueKey'];
             }
             if ($row['nameKey'] === 'youtube_account' && $row['valueKey'] !== $youtube_account) {
@@ -26,6 +23,7 @@ if (!empty($_POST)) {
                 break;
             }
         }
+        # Recherche si le compte n'a pas changé pour éviter de faire des calls API tout le temps
         if ($channelHasChanged) {
             $account = Youtube::verifyChannel($youtube_account);
             if ($account) {

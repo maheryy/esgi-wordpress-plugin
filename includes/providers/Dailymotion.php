@@ -12,7 +12,7 @@ class Dailymotion
 
     public function getContent($options = [])
     {
-        $videos = json_decode(file_get_contents('https://api.dailymotion.com/user/' . $this->account . '/videos'), true);
+        $videos = httpRequest('https://api.dailymotion.com/user/' . $this->account . '/videos');
 
         $html = '<div style="width:100%; display: flex; flex-wrap: wrap; justify-content: space-evenly; align-items: flex-start">';
         foreach ($videos['list'] as $key => $video) {
@@ -34,10 +34,5 @@ class Dailymotion
         }
 
         return $html;
-    }
-
-    public function getButton()
-    {
-        https://www.dailymotion.com/leparisien
     }
 }

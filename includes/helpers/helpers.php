@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Debug purpose
+ */
 function dd(...$var)
 {
     echo '<pre>';
@@ -13,16 +16,24 @@ function dd(...$var)
     echo '</pre>';
     die;
 }
-
+/**
+ * Format thousand separated number
+ */
 function prettyNumber($n) {
     return number_format($n, 0, ',', ' ');
 }
 
+/**
+ * Sanitize inputs
+ */
 function sanitize(string $s)
 {
     return trim(htmlspecialchars($s));
 }
 
+/**
+ * Perform a HTTP Request for API calls
+ */
 function httpRequest(string $url, array $options = [])
 {
     $curl = curl_init();
@@ -45,6 +56,9 @@ function httpRequest(string $url, array $options = [])
     return json_decode($response, true);
 }
 
+/**
+ * Make an url with query string
+ */
 function buildUrl(string $url, array $params = [])
 {
     return $url . ($params ? '?' . http_build_query($params) : '');

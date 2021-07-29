@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../src/helpers/helpers.php';
+require_once __DIR__ . '/helpers/helpers.php';
 loadDotEnv(__DIR__ . '/../.env');
 
 //Add style
@@ -164,6 +164,7 @@ add_shortcode('panelTwitch', 'panelCommunity_panelTwitchShortcode');
 add_shortcode('panelYoutube', 'panelCommunity_panelYoutubeShortcode');
 add_shortcode('panelDailymotion', 'panelCommunity_panelDailymotionShortcode');
 
+# [fullPanel] shortcode
 function panelCommunity_fullPannelShortcode()
 {
 	return "<div>
@@ -173,9 +174,10 @@ function panelCommunity_fullPannelShortcode()
 	</div>";
 }
 
+# [panelTwitch] shortcode
 function panelCommunity_panelTwitchShortcode()
 {
-	require __DIR__ . '/../src/providers/Twitch.php';
+	require __DIR__ . '/providers/Twitch.php';
 	global $wpdb;
 
 	$template = '<section>
@@ -214,9 +216,10 @@ function panelCommunity_panelTwitchShortcode()
 	);
 }
 
+# [panelYoutube] shortcode
 function panelCommunity_panelYoutubeShortcode()
 {
-	require __DIR__ . '/../src/providers/Youtube.php';
+	require __DIR__ . '/providers/Youtube.php';
 
 	global $wpdb;
 
@@ -287,9 +290,10 @@ function panelCommunity_panelYoutubeShortcode()
 	);
 }
 
+# [panelDailymotion] shortcode
 function panelCommunity_panelDailymotionShortcode()
 {
-	require __DIR__ . '/../src/providers/Dailymotion.php';
+	require __DIR__ . '/providers/Dailymotion.php';
 	global $wpdb;
 
 	$template = '<section>

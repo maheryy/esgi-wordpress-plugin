@@ -2,10 +2,6 @@
 
 class Twitch
 {
-    private string $api_secret;
-
-    private string $base_url;
-
     private string $channel;
     private $options;
 
@@ -15,10 +11,6 @@ class Twitch
         $this->options = $options;
         $this->api_secret = 'TWITCH_SECRET';
         $this->base_url = 'twitch';
-    }
-
-    public function isLive()
-    {
     }
 
     public function getCurrentLive()

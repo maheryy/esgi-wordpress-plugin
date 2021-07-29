@@ -11,6 +11,7 @@ require_once plugin_dir_path(__FILE__).'includes/esgi-functions.php';
 
 register_activation_hook(__FILE__, 'panelCommunity_activation');
 
+// Plugin activation
 function panelCommunity_activation() {
 	global $wpdb;
 	//Create table
@@ -63,6 +64,7 @@ function panelCommunity_activation() {
 
 register_deactivation_hook(__FILE__, 'panelCommunity_deactivation');
 
+// Plugin desactivation
 function panelCommunity_deactivation() {
 	global $wpdb;
 	//Delete table if user wants
