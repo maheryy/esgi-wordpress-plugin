@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../src/helpers/helpers.php';
+require_once __DIR__ . '/helpers/helpers.php';
 loadDotEnv(__DIR__ . '/../.env');
 
 //Add style
@@ -62,7 +62,7 @@ class panelCommunityWidget extends WP_Widget
 				. $title
 				. $args['after_title'];
 		//output
-		
+
 		if ($twitch_widget === 'on') {
 			$twitchAccount = json_decode(json_encode(
 				$wpdb->get_results(
@@ -94,8 +94,8 @@ class panelCommunityWidget extends WP_Widget
 			}
 		}
 
-		
-		if ($dailymotion_widget === 'on')  {
+
+		if ($dailymotion_widget === 'on') {
 			$dailymotionAccount = json_decode(json_encode(
 				$wpdb->get_results(
 					$wpdb->prepare("SELECT valueKey FROM {$wpdb->prefix}panelCommunity_table WHERE nameKey='dailymotion_account'")
@@ -109,20 +109,19 @@ class panelCommunityWidget extends WP_Widget
 				</a>';
 			}
 		}
-		
+
 		echo $args['after_widget'];
 	}
 
 	public function form($instance)
 	{
 		if (isset($instance['title'])) {
-			
+
 			$title = $instance['title'];
 			$twitch_widget = $instance['twitch_widget'];
 			$youtube_widget = $instance['youtube_widget'];
 			$dailymotion_widget = $instance['dailymotion_widget'];
-		}
-		else {
+		} else {
 			$title = __('Panel Community', 'panelCommunityWidget_domain');
 			$twitch_widget = __('Panel Community', 'panelCommunityWidget_domain');
 			$youtube_widget = __('Panel Community', 'panelCommunityWidget_domain');
@@ -134,15 +133,15 @@ class panelCommunityWidget extends WP_Widget
 			<input id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo esc_attr($title); ?>" />
 		</p>
 		<p>
-			<input id="<?php echo $this->get_field_id('twitch_widget'); ?>" name="<?php echo $this->get_field_name('twitch_widget'); ?>" type="checkbox" <?php echo esc_attr($twitch_widget) === 'on' ? 'checked' : ''; ?>/>
+			<input id="<?php echo $this->get_field_id('twitch_widget'); ?>" name="<?php echo $this->get_field_name('twitch_widget'); ?>" type="checkbox" <?php echo esc_attr($twitch_widget) === 'on' ? 'checked' : ''; ?> />
 			<label for="<?php echo $this->get_field_id('twitch_widget'); ?>">Twitch</label>
 		</p>
 		<p>
-			<input id="<?php echo $this->get_field_id('youtube_widget'); ?>" name="<?php echo $this->get_field_name('youtube_widget'); ?>" type="checkbox" <?php echo esc_attr($youtube_widget) === 'on' ? 'checked' : ''; ?>/>
+			<input id="<?php echo $this->get_field_id('youtube_widget'); ?>" name="<?php echo $this->get_field_name('youtube_widget'); ?>" type="checkbox" <?php echo esc_attr($youtube_widget) === 'on' ? 'checked' : ''; ?> />
 			<label for="<?php echo $this->get_field_id('youtube_widget'); ?>">Youtube</label>
 		</p>
 		<p>
-			<input id="<?php echo $this->get_field_id('dailymotion_widget'); ?>" name="<?php echo $this->get_field_name('dailymotion_widget'); ?>" type="checkbox" <?php echo esc_attr($dailymotion_widget) === 'on' ? 'checked' : ''; ?>/>
+			<input id="<?php echo $this->get_field_id('dailymotion_widget'); ?>" name="<?php echo $this->get_field_name('dailymotion_widget'); ?>" type="checkbox" <?php echo esc_attr($dailymotion_widget) === 'on' ? 'checked' : ''; ?> />
 			<label for="<?php echo $this->get_field_id('dailymotion_widget'); ?>">Dailymotion</label>
 		</p>
 <?php
@@ -165,6 +164,7 @@ add_shortcode('panelTwitch', 'panelCommunity_panelTwitchShortcode');
 add_shortcode('panelYoutube', 'panelCommunity_panelYoutubeShortcode');
 add_shortcode('panelDailymotion', 'panelCommunity_panelDailymotionShortcode');
 
+# [fullPanel] shortcode
 function panelCommunity_fullPannelShortcode()
 {
 	return "<div>
@@ -174,9 +174,10 @@ function panelCommunity_fullPannelShortcode()
 	</div>";
 }
 
+# [panelTwitch] shortcode
 function panelCommunity_panelTwitchShortcode()
 {
-	require __DIR__ . '/../src/providers/Twitch.php';
+	require __DIR__ . '/providers/Twitch.php';
 	global $wpdb;
 
 	$template = '<section>
@@ -205,9 +206,8 @@ function panelCommunity_panelTwitchShortcode()
 		. $twitchProvider->getCurrentLive()
 		. ($settings['twitch_chat_visible']
 			? $twitchProvider->getCurrentChat()
-			: ''
-		)
-	.'</div>';
+			: '')
+		. '</div>';
 
 	return str_replace(
 		['%content%'],
@@ -216,18 +216,23 @@ function panelCommunity_panelTwitchShortcode()
 	);
 }
 
+# [panelYoutube] shortcode
 function panelCommunity_panelYoutubeShortcode()
 {
-	require __DIR__ . '/../src/providers/Youtube.php';
+	require __DIR__ . '/providers/Youtube.php';
+
 	global $wpdb;
 
 	$template = '<section>
+		<div style="display: flex; justify-content: space-between; align-items: center">
 		<h3>Youtube</h3>
-		<div class="youtube-frames">
-		%content%
-		</div>
 		%button%
+		</div>
+		<div style="display: flex; flex-wrap: wrap;">
+			%content%
+		</div>
 	</section>';
+
 
 	$youtubeFields = $wpdb->get_results($wpdb->prepare("SELECT DISTINCT * FROM {$wpdb->prefix}panelCommunity_table WHERE nameKey LIKE 'youtube%'"), ARRAY_A);
 	$settings = [];
@@ -235,60 +240,47 @@ function panelCommunity_panelYoutubeShortcode()
 		$settings[$row['nameKey']] = $row['valueKey'];
 	}
 
-	if (empty($settings['youtube_account_id'])) {
+	if (empty($settings['youtube_account_id']) || $settings['youtube_activated'] !== '1') {
 		return '';
 	}
 
-	/* Code fonctionnel : pas abuser sur les call API */
-	/*
 	$youtube = new Youtube($settings['youtube_account_id']);
 	$with_details = $settings['youtube_views_visible'] === '1' || $settings['youtube_likes_visible'] === '1' || $settings['youtube_dislikes_visible'] === '1';
 
 	switch ($settings['youtube_type_videos']) {
 		case 'last':
-		 	$videos = $youtube->getLatestVideos((int)$settings['youtube_nb_videos'], $with_details);
-	 		break;
-	 	case 'moreViews':
+			$videos = $youtube->getLatestVideos((int)$settings['youtube_nb_videos'], $with_details);
+			break;
+		case 'moreViews':
 			$videos = $youtube->getMostViewedVideos((int)$settings['youtube_nb_videos'], $with_details);
 			break;
 		case 'moreLikes':
 			$videos = $youtube->getMostLikedVideos((int)$settings['youtube_nb_videos'], $with_details);
 			break;
 	}
-	*/
-
-	/* Vrai données pour les tests d'affichage */
-	$videos = [
-		['id' => 'rew3qfQV6jU', 'views' => '5956148', 'likes' => '123539', 'dislikes' => '4691', 'favorites' => '0', 'comments' => '3305'],
-		['id' => 'Nh7M8GqswZ4', 'views' => '4202170', 'likes' => '85755', 'dislikes' => '3020', 'favorites' => '0', 'comments' => '2929'],
-		['id' => 'ylpuGUWGdSs', 'views' => '3957517', 'likes' => '66193', 'dislikes' => '2160', 'favorites' => '0', 'comments' => '4116'],
-		['id' => 'V79ArW07JQM', 'views' => '3655563', 'likes' => '96963', 'dislikes' => '2567', 'favorites' => '0', 'comments' => '1676'],
-		['id' => '9lcxzZcAFTE', 'views' => '3541963', 'likes' => '142262', 'dislikes' => '2968', 'favorites' => '0', 'comments' => '3559']
-	];
 
 	if (empty($videos)) {
 		return "<section><h4> Aucune vidéo trouvée pour le compte {$settings['youtube_account']}</h4</section>";
 	}
 
-	$content = '<div style="display: flex;">';
+	$content = '';
 	foreach ($videos as $video) {
 		$content .=
-			'<div class="youtube-frame" style="flex: 1;">
-				<iframe width="420" height="300" src="https://www.youtube.com/embed/' . $video['id'] . '"></iframe>
+			'<div class="youtube-frame" style="flex: 1; min-width: 50%;">
+				<iframe width="100%" height="300" src="https://www.youtube.com/embed/' . $video['id'] . '"></iframe>
 				<div class="youtube-stats">' .
-					($settings['youtube_views_visible'] === '1' ? '<div class="youtube-stat">' . $video['views'] . ' vues</div>' : '') .
-					'<div style="font-size: medium;">' .
-						($settings['youtube_likes_visible'] === '1' ? '<div class="youtube-stat">' . $video['likes'] . ' likes</div>' : '') .
-						($settings['youtube_dislikes_visible'] === '1' ? '<div class="youtube-stat">' . $video['dislikes'] . ' dislikes</div>' : '') .
-					'</div>' .
-				'</div>
+			($settings['youtube_views_visible'] === '1' ? '<div class="youtube-stat">' . $video['views'] . ' vues</div>' : '') .
+			'<div style="font-size: medium;">' .
+			($settings['youtube_likes_visible'] === '1' ? '<div class="youtube-stat">' . $video['likes'] . ' likes</div>' : '') .
+			($settings['youtube_dislikes_visible'] === '1' ? '<div class="youtube-stat">' . $video['dislikes'] . ' dislikes</div>' : '') .
+			'</div>' .
+			'</div>
 			</div>' . PHP_EOL;
 	}
-	$content .= '</div>';
-	
+
 	$button = $settings['youtube_button_visible'] === '1'
 		? '<script src="https://apis.google.com/js/platform.js"></script>
-		<div class="g-ytsubscribe" data-channel="LeFatShow" data-layout="default" data-count="default"></div>'
+		<div class="g-ytsubscribe" data-channelid="' . $settings['youtube_account_id'] . '" data-layout="full" data-count="default"></div>'
 		: '';
 
 	return str_replace(
@@ -298,23 +290,26 @@ function panelCommunity_panelYoutubeShortcode()
 	);
 }
 
+# [panelDailymotion] shortcode
 function panelCommunity_panelDailymotionShortcode()
 {
-	require __DIR__ . '/../src/providers/Dailymotion.php';
+	require __DIR__ . '/providers/Dailymotion.php';
 	global $wpdb;
 
 	$template = '<section>
-		<h3>Dailymotion</h3>
-		<div class="dailymotion-frames">
-		%content%
+		<div style="display: flex; justify-content: space-between; align-items: center">
+			<h3>Dailymotion</h3>
+			%button%
 		</div>
-		%button%
+		<div style="display: flex; flex-wrap: wrap;">
+			%content%
+		</div>
 	</section>';
 
 	$dailymotionFields = $wpdb->get_results(
 		$wpdb->prepare(
 			"SELECT DISTINCT * FROM {$wpdb->prefix}panelCommunity_table WHERE nameKey LIKE 'dailymotion%'"
-		), 
+		),
 		ARRAY_A
 	);
 	$settings = [];

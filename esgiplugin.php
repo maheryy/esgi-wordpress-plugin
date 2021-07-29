@@ -11,6 +11,7 @@ require_once plugin_dir_path(__FILE__).'includes/esgi-functions.php';
 
 register_activation_hook(__FILE__, 'panelCommunity_activation');
 
+// Plugin activation
 function panelCommunity_activation() {
 	global $wpdb;
 	//Create table
@@ -36,13 +37,13 @@ function panelCommunity_activation() {
 		'youtube_likes_visible' => '1',
 		'youtube_dislikes_visible' => '1',
 		'youtube_type_videos' => 'last',
-		'youtube_nb_videos' => '3',
+		'youtube_nb_videos' => '2',
 		'youtube_activated' => '1',
 		//Dailymotion
 		'dailymotion_account' => '',
 		'dailymotion_title_visible' => '1',
 		'dailymotion_button_visible' => '1',
-		'dailymotion_nb_videos' => '3',
+		'dailymotion_nb_videos' => '2',
 		'dailymotion_activated' => '1',
 	];
 
@@ -63,6 +64,7 @@ function panelCommunity_activation() {
 
 register_deactivation_hook(__FILE__, 'panelCommunity_deactivation');
 
+// Plugin desactivation
 function panelCommunity_deactivation() {
 	global $wpdb;
 	//Delete table if user wants

@@ -12,9 +12,9 @@ class Dailymotion
 
     public function getContent($options = [])
     {
-        $videos = json_decode(file_get_contents('https://api.dailymotion.com/user/' . $this->account . '/videos'), true);
+        $videos = httpRequest('https://api.dailymotion.com/user/' . $this->account . '/videos');
 
-        $html = '<div style="display: flex;">';
+        $html = '';
         foreach ($videos['list'] as $key => $video) {
             $max_nb_videos = null;
             if (!empty($options['nb_videos'])) {
@@ -22,22 +22,17 @@ class Dailymotion
             }
 
             if ($key < $max_nb_videos || $max_nb_videos === null) {
-                $html .= '<div style="flex: 1;">
-                    <iframe frameborder="0" width="640" height="360" 
+                $html .= '<div style="flex: 1; min-width: 50%;">
+                    <iframe frameborder="0" width="100%" height="300" 
                         src="https://www.dailymotion.com/embed/video/' . $video['id'] . '" 
                         allowfullscreen 
                         allow="autoplay; fullscreen">
                     </iframe>
-                    <p>' . $video['title'] . '</p>
+                    <p style="width: 280px">' . $video['title'] . '</p>
                 </div>'; 
             }
         }
 
         return $html;
-    }
-
-    public function getButton()
-    {
-        https://www.dailymotion.com/leparisien
     }
 }
