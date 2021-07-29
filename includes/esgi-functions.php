@@ -225,7 +225,7 @@ function panelCommunity_panelYoutubeShortcode()
 		<h3>Youtube</h3>
 		%button%
 		</div>
-		<div class="youtube-frames" style="width:100%; display : flex; flex-wrap: wrap; justify-content: space-evenly; align-items: center">
+		<div class="youtube-frames" style="width:100%; display: flex; flex-wrap: wrap; justify-content: space-evenly; align-items: center">
 		%content%
 		</div>
 	</section>';
@@ -293,11 +293,13 @@ function panelCommunity_panelDailymotionShortcode()
 	global $wpdb;
 
 	$template = '<section>
-		<h3>Dailymotion</h3>
+		<div style="display: flex; justify-content: space-between; align-items: center">
+			<h3>Dailymotion</h3>
+			%button%
+		</div>
 		<div class="dailymotion-frames">
 		%content%
 		</div>
-		%button%
 	</section>';
 
 	$dailymotionFields = $wpdb->get_results(
